@@ -24,8 +24,11 @@ public class MessageController {
         return result;
     }
 
+    // get mapping for the fetching message by specific userid
     @GetMapping("/{id}")
     public Message fetchByMsgId(@PathVariable long id){
         return messageService.fetchMessageById(id);
     }
+
+
 }
