@@ -18,7 +18,7 @@ public class MessageController {
         return messageService.fetchAllMessage();
     }
 
-    //this is mapping for createmessage
+    //this is mapping for createMessage
     @PostMapping
     public Message createMessage(@RequestBody Message message){
         Message result =messageService.insertMessage(message);
