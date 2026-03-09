@@ -1,0 +1,57 @@
+package com.social.application.Services;
+
+import com.social.application.DTOs.UserDTO;
+import com.social.application.Models.User;
+import com.social.application.Repositories.FollowRepository;
+import com.social.application.Repositories.UserRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+@Service
+public class UserService {
+    private final UserRepository userRepository;
+    private final FollowRepository followRepository;
+
+    public UserService(UserRepository userRepository, FollowRepository followRepository) {
+        this.userRepository = userRepository;
+        this.followRepository = followRepository;
+    }
+
+    public User insertUser(User user){
+        return userRepository.save(user);
+    }
+    public List<UserDTO> fetchAllUser(){
+
+            List<User> users = userRepository.findAll();
+
+            return users.stream().map(user -> {
+
+                long followers = followRepository.countByFollowerUser_Id(user.getId());
+                long following = followRepository.countByFollowingUser_Id(user.getId());
+
+                return new UserDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getBio(),
+                        user.getProfileImage(),
+                        followers,
+                        following
+                );
+
+            }).toList();
+        }
+
+    public User fetchUserById(Long id){
+
+        return userRepository.findById(id).orElse(null);
+    }
+
+
+    public UserDTO getUserDTO(Long userId) {
+        User user = fetchUserById(userId);
+        long followers = followRepository.countByFollowerUser_Id(userId);
+        long following = followRepository.countByFollowingUser_Id(userId);
+
+        return new UserDTO(userId, user.getUsername(),user.getBio(),user.getProfileImage(), followers, following  );
+    }
+}
