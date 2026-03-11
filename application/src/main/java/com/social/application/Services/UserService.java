@@ -4,6 +4,7 @@ import com.social.application.DTOs.UserDTO;
 import com.social.application.Models.User;
 import com.social.application.Repositories.FollowRepository;
 import com.social.application.Repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,13 +12,16 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, FollowRepository followRepository) {
+    public UserService(UserRepository userRepository, FollowRepository followRepository ,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.followRepository = followRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User insertUser(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
     public List<UserDTO> fetchAllUser(){
