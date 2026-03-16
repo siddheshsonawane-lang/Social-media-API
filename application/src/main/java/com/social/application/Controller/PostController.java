@@ -2,7 +2,10 @@ package com.social.application.Controller;
 
 import com.social.application.DTOs.PostDTO;
 import com.social.application.Models.Post;
+import com.social.application.Models.User;
 import com.social.application.Services.PostService;
+import com.social.application.Utility.ApiResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +20,8 @@ public class PostController {
     }
 
     @GetMapping
-    public List<Post>fetchAllPost(){
-        return postService.fetchAll();
+    public List<PostDTO>getAllPosts(){
+        return postService.getAllPostsWithCommentsAndLikes();
     }
 
     @PostMapping
@@ -39,7 +42,27 @@ public class PostController {
     }
 
     @GetMapping("/postWithComment")
-    public List<PostDTO>getPosts(){
+    public List<PostDTO>getPostsWithComments(){
         return postService.getAllPostsWithCommentsAndLikes();
     }
+
+
+    @GetMapping("/posts")
+    public ResponseEntity<ApiResponse<List<PostDTO>>> getPosts() {
+        List<PostDTO> posts = postService.getAllPosts();
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Posts fetched successfully", posts)
+        );
+    }
+
+//    @GetMapping
+//    public ResponseEntity<ApiResponse<List<PostDTO>>> getPosts(){
+//
+//        List<PostDTO> posts = postService.getAllPosts();
+//
+//        return ResponseEntity.ok(
+//                ApiResponse.success("Posts fetched successfully", posts)
+//        );
+//    }
 }

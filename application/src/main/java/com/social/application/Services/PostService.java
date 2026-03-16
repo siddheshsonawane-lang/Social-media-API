@@ -34,8 +34,23 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public List<Post> fetchAll(){
-        return postRepository.findAll();
+    public List<PostDTO> getAllPosts() {
+
+        return postRepository.findAll().stream()
+                .map(post -> new PostDTO(
+                        post.getId(),
+                        post.getCaption(),
+                        post.getLikes().size(),
+                        post.getComments()
+                                .stream()
+                                .map(c -> new CommentDTO(c.getId(), c.getText()))
+                                .toList(),
+                        post.getLikes()
+                                .stream()
+                                .map(l -> l.getUser().getUsername())
+                                .toList()
+                ))
+                .toList();
     }
 
     public Post fetchPostById(Long id){
@@ -90,11 +105,17 @@ public class PostService {
                                     c.getText()))
                             .toList();
 
+            List<String> likedBy = post.getLikes()
+                    .stream()
+                    .map(like -> like.getUser().getUsername())
+                    .toList();
+
+
             return new PostDTO(
                     (Long) post.getId(),
                     post.getCaption(),
                     likeCount,
-                    comments,new ArrayList<String>()
+                    comments,likedBy
             );
 
         }).toList();

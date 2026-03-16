@@ -4,6 +4,8 @@ import com.social.application.DTOs.UserDTO;
 import com.social.application.Models.User;
 import com.social.application.Services.AuthService;
 import com.social.application.Services.UserService;
+import com.social.application.Utility.ApiResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,5 +47,20 @@ public class UserController {
         return authService.login(request);
 
 
+    }
+
+    @GetMapping("/reponse/{id}")
+    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable Long id) {
+
+        User user = userService.fetchUserById(id);
+
+        if(user == null){
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error("User not found","USER_NOT_FOUND"));
+        }
+
+        return ResponseEntity.ok(
+                ApiResponse.success("User fetched", user)
+        );
     }
 }
