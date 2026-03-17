@@ -8,6 +8,8 @@ import com.social.application.Repositories.LikeRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 @Service
@@ -21,16 +23,32 @@ public class LikeService {
         this.likeRepository = likeRepository;
     }
 
-    public Like insetLike(Like like){
-        long userId = like.getUser().getId();
-        long postId = like.getPost().getId();
 
-        User userRef = entityManager.getReference(User.class,userId);
 
-        Post postRef = entityManager.getReference(Post.class,postId);
+    public Like insertLike(Like like){
 
-        like.setUser(userRef);
-        like.setPost(postRef);
+        Long userId = like.getUser().getId();
+        Long postId = like.getPost().getId();
+
+        User user = entityManager.find(User.class, userId);
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        Post post = entityManager.find(Post.class, postId);
+        if(post == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
+        }
+
+        // critical business rule (you completely missed this)
+        boolean alreadyLiked = likeRepository.existsByUserIdAndPostId(userId, postId);
+        if(alreadyLiked){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Post already liked by user");
+        }
+
+        like.setUser(user);
+        like.setPost(post);
+
         return likeRepository.save(like);
     }
 
@@ -39,7 +57,13 @@ public class LikeService {
     }
 
     public Like fetchLikeById(Long id){
-        return likeRepository.findById(id).orElse(null);
+        return likeRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Like not found with id: " + id
+                        )
+                );
     }
 
 

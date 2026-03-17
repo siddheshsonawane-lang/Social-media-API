@@ -1,7 +1,10 @@
 package com.social.application.Controller;
 
+import com.social.application.DTOs.MessageDTO;
 import com.social.application.Models.Message;
 import com.social.application.Services.MessageService;
+import com.social.application.Utility.ApiResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,9 +30,29 @@ public class MessageController {
 
     // get mapping for the fetching message by specific userid //
     @GetMapping("/{id}")
-    public Message fetchByMsgId(@PathVariable long id){
-        return messageService.fetchMessageById(id);
+    public ResponseEntity<ApiResponse<Message>> fetchByMsgId(@PathVariable long id){
+
+        Message message = messageService.fetchMessageById(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Message fetched", message)
+        );
     }
 
+    @GetMapping("/chat/{user1}/{user2}")
+    public ResponseEntity<ApiResponse<List<MessageDTO>>> getChat(
+            @PathVariable long user1,
+            @PathVariable long user2) {
 
+        List<MessageDTO> messages = messageService.getChat(user1, user2);
+
+        if(messages == null || messages.isEmpty()){
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error("No chat found", "CHAT_NOT_FOUND"));
+        }
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Chat fetched", messages)
+        );
+    }
 }

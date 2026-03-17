@@ -9,6 +9,8 @@ import com.social.application.Repositories.PostRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +30,16 @@ public class PostService {
     }
 
     public Post insertPost(Post post){
-        long userId = post.getUser().getId();
-        User userRef= entityManager.getReference(User.class,userId);
-        post.setUser(userRef);
+
+        Long userId = post.getUser().getId();
+
+        User user = entityManager.find(User.class, userId);
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        post.setUser(user);
+
         return postRepository.save(post);
     }
 
@@ -53,10 +62,16 @@ public class PostService {
                 .toList();
     }
 
-    public Post fetchPostById(Long id){
-        return postRepository.findById(id).orElse(null);
-    }
 
+    public Post fetchPostById(Long id){
+        return postRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Post not found with id: " + id
+                        )
+                );
+    }
     public List<PostDTO> getPostsByUserId(Long userId) {
         List <Post> posts = postRepository.findByUser_Id(userId);
 

@@ -10,7 +10,7 @@ public class UserDTO {
     private String bio;
     private String profileImage;
     private long follower;
-    private  long following;
+    private long following;
 
     public UserDTO(Long id, String username, String bio, String profileImage, long follower, long following) {
         this.id = id;

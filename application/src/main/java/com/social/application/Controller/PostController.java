@@ -20,26 +20,45 @@ public class PostController {
     }
 
     @GetMapping
-    public List<PostDTO>getAllPosts(){
-        return postService.getAllPostsWithCommentsAndLikes();
+    public ResponseEntity<ApiResponse<List<PostDTO>>> getAllPosts(){
+
+        List<PostDTO> posts = postService.getAllPosts();
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Posts fetched", posts)
+        );
     }
 
     @PostMapping
-    public Post createPost(@RequestBody Post post){
+    public ResponseEntity<ApiResponse<Post>> createPost(@RequestBody Post post){
+
         Post result = postService.insertPost(post);
-        return result;
+
+        return ResponseEntity.status(201)
+                .body(ApiResponse.success("Post created", result));
     }
 
     @GetMapping("/{id}")
-    public Post fetchByPostId(@PathVariable long id){
-        return postService.fetchPostById(id);
+    public ResponseEntity<ApiResponse<Post>> fetchByPostId(@PathVariable long id){
+
+        Post post = postService.fetchPostById(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Post fetched", post)
+        );
     }
 
     //this is get mapping for userid
     @GetMapping("/user/{userId}")
-    public List<PostDTO> getPostsByUserId(@PathVariable Long userId) {
-        return postService.getPostsByUserId(userId);
+    public ResponseEntity<ApiResponse<List<PostDTO>>> getPostsByUserId(@PathVariable Long userId){
+
+        List<PostDTO> posts = postService.getPostsByUserId(userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("User posts fetched", posts)
+        );
     }
+
 
     @GetMapping("/postWithComment")
     public List<PostDTO>getPostsWithComments(){

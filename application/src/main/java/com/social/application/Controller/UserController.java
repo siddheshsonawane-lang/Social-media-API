@@ -22,35 +22,59 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDTO> fetchAllUser() {
-        return userService.fetchAllUser();
+    public ResponseEntity<ApiResponse<List<UserDTO>>> fetchAllUser() {
+
+        List<UserDTO> users = userService.fetchAllUser();
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Users fetched", users)
+        );
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        User result = userService.insertUser(user);
-        return result;
+    public ResponseEntity<ApiResponse<UserDTO>> createUser(@RequestBody User user) {
+
+        User saved = userService.insertUser(user);
+
+        UserDTO dto = userService.getUserDTO(saved.getId());
+
+        return ResponseEntity.status(201)
+                .body(ApiResponse.success("User created", dto));
     }
 
+
     @GetMapping("/{id}")
-    public User fetchByUserId(@PathVariable long id) {
-        return userService.fetchUserById(id);
+    public ResponseEntity<ApiResponse<UserDTO>> fetchByUserId(@PathVariable long id) {
+
+        UserDTO user = userService.getUserDTO(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("User fetched", user)
+        );
     }
+
 
     @GetMapping("/{id}/stats")
     public UserDTO getUserStats(@PathVariable long id) {
         return userService.getUserDTO(id);
     }
 
+
     @PostMapping("/login")
-    public User login(@RequestBody LoginRequestDTO request) {
-        return authService.login(request);
+    public ResponseEntity<ApiResponse<UserDTO>> login(@RequestBody LoginRequestDTO request) {
 
+        User user = authService.login(request);
 
+        UserDTO dto = userService.getUserDTO(user.getId());
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Login successful", dto)
+        );
     }
 
+
     @GetMapping("/reponse/{id}")
-    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable long id) {
 
         User user = userService.fetchUserById(id);
 

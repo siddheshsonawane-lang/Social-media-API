@@ -2,6 +2,8 @@ package com.social.application.Controller;
 
 import com.social.application.Models.Follow;
 import com.social.application.Services.FollowService;
+import com.social.application.Utility.ApiResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,18 +17,31 @@ public class FollowController {
     }
 
     @GetMapping
-    public List<Follow>fetchAllFollower(){
-        return followService.fetchAllFollow();
+    public ResponseEntity<ApiResponse<List<Follow>>> fetchAllFollower(){
+
+        List<Follow> follows = followService.fetchAllFollow();
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Follows fetched", follows)
+        );
     }
 
     @PostMapping
-    public Follow createFollow(@RequestBody Follow follow){
-     Follow result = followService.insertFollow(follow);
-     return result;
+    public ResponseEntity<ApiResponse<Follow>> createFollow(@RequestBody Follow follow){
+
+        Follow result = followService.insertFollow(follow);
+
+        return ResponseEntity.status(201)
+                .body(ApiResponse.success("Follow created", result));
     }
 
     @GetMapping("/{id}")
-    public Follow fetchByFollowId(@PathVariable long id){
-        return followService.fetchFollowById(id);
+    public ResponseEntity<ApiResponse<Follow>> fetchByFollowId(@PathVariable long id){
+
+        Follow follow = followService.fetchFollowById(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Follow fetched", follow)
+        );
     }
 }

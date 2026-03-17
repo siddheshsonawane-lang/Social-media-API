@@ -2,6 +2,8 @@ package com.social.application.Controller;
 
 import com.social.application.Models.Like;
 import com.social.application.Services.LikeService;
+import com.social.application.Utility.ApiResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,18 +17,31 @@ public class LikeController {
     }
 
     @GetMapping
-    public List<Like>fetchAllLikes(){
-        return likeService.fetchAllLike();
+    public ResponseEntity<ApiResponse<List<Like>>> fetchAllLikes() {
+
+        List<Like> likes = likeService.fetchAllLike();
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Likes fetched", likes)
+        );
     }
 
     @PostMapping
-    public Like createLike(@RequestBody Like like){
-        Like result = likeService.insetLike(like);
-        return result;
+    public ResponseEntity<ApiResponse<Like>> createLike(@RequestBody Like like) {
+
+        Like result = likeService.insertLike(like);
+
+        return ResponseEntity.status(201)
+                .body(ApiResponse.success("Like created", result));
     }
 
     @GetMapping("/{id}")
-    public Like fetchByLikeId(@PathVariable long id){
-        return likeService.fetchLikeById(id);
+    public ResponseEntity<ApiResponse<Like>> fetchByLikeId(@PathVariable long id) {
+
+        Like like = likeService.fetchLikeById(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Like fetched", like)
+        );
     }
 }
